@@ -2,6 +2,8 @@ import rclpy
 import RPi.GPIO as GPIO
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
+import time
+import threading
 
 class DrivetrainNode(Node):
     def __init__(self):
@@ -34,8 +36,42 @@ class DrivetrainNode(Node):
         self.right_motor = GPIO.PWM(self.right_motor_pwm, 100)
         self.left_motor.start(0)
         self.right_motor.start(0)
+        self.subroutine_thread = None
+        self.exit_subroutines = False
+
+    def move_forward_backward(self, duration, speed, direction):
+        left_speed = speed if direction == 1 else -speed
+        right_speed = speed if direction == 1 else -speed
+
+        self.set_motor_speed(self.left_motor, self.left_motor_dir, left_speed)
+        self.set_motor_speed(self.right_motor, self.right_motor_dir, right_speed)
+
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            if self.exit_subroutines:
+                break
+            time.sleep(0.1)
+
+        self.set_motor_speed(self.left_motor, self.left_motor_dir, 0)
+        self.set_motor_speed(self.right_motor, self.right_motor_dir, 0)
+
 
     def joy_callback(self, msg):
+        if msg.buttons[4] == 1:
+            self.exit_subroutine = True
+        else:
+            self.exit_subroutines = False
+        
+        if msg.buttons[2] == 1:
+            forward_duration = 3  # Duration in seconds
+            forward_speed_percentage = 50  # Speed percentage
+            self.move_forward_backward(forward_duration, forward_speed_percentage, 1)
+            
+        if msg.buttons[3] == 1:
+            forward_duration = 3  # Duration in seconds
+            forward_speed_percentage = 50  # Speed percentage
+            self.move_forward_backward(forward_duration, forward_speed_percentage, -1)
+            
         # Get the horizontal position of the left joystick (left-right movement)
         left_stick_x = msg.axes[0]
         # Get the vertical position of the left joystick (forward-backward movement)

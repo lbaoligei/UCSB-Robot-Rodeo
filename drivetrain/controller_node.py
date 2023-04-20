@@ -27,11 +27,13 @@ class ControllerNode(Node):
                     
                     # taking preset instructions
                     l2 = self.controller.get_button(6)  # L2 button for automated climb up 1st stage
+                    r2 = self.controller.get_button(7)  # R2 button for automated climb down 1st stage
+                    r3 = self.controller.get_button(11)  #R3 button to get out of any subroutine
 
                     # Create Joy message and pack axes, buttons values into the package
                     joy_msg = Joy()
                     joy_msg.axes = [left_stick_x, -left_stick_y]	# flip y_axis so that up is positive, down is negative
-                    joy_msg.buttons = [l1, r1]
+                    joy_msg.buttons = [l1, r1, l2, r2, r3]
 
                     # Publish the Joy message
                     self.publisher.publish(joy_msg)

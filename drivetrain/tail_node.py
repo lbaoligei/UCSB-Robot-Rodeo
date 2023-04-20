@@ -2,6 +2,8 @@ import rclpy
 import RPi.GPIO as GPIO
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
+import time
+import threading
 
 class TailNode(Node):
     def __init__(self):
@@ -21,11 +23,44 @@ class TailNode(Node):
         # Initialize PWM
         self.tail_motor = GPIO.PWM(self.tail_motor_pwm, 100)
         self.tail_motor.start(0)
+        self.subroutine_thread = None
+        self.exit_subroutines = False
+    
+    def move_tail(self, duration, speed, direction):
+        tail_speed = speed if direction == 1 else -speed
+        self.set_motor_speed(self.tail_motor, self.tail_motor_dir, tail_speed)
+        
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            if self.exit_subroutines:
+                break
+            time.sleep(0.1)
+
+        self.set_motor_speed(self.tail_motor, self.tail_motor_dir, 0)
 
     def joy_callback(self, msg):
         l1 = msg.buttons[0]  # L1 button
         r1 = msg.buttons[1]  # R1 button
 
+        if msg.buttons[4] == 1:
+            self.exit_subroutines = True
+        else:
+            self.exit_subroutines = False
+        
+        if msg.buttons[2] == 1: 
+            tail_duration = 3  # Duration in seconds
+            tail_speed_percentage = 50  # Speed percentage
+            direction = 1  # Use "up" or "down"
+            self.subroutine_thread = threading.Thread(target=self.move_tail, args=(tail_duration, tail_speed_percentage, direction))
+            self.subroutine_thread.start()
+        
+        if msg.buttons[3] == 1: 
+            tail_duration = 3  # Duration in seconds
+            tail_speed_percentage = 50  # Speed percentage
+            direction = -1  # Use "up" or "down"
+            self.subroutine_thread = threading.Thread(target=self.move_tail, args=(tail_duration, tail_speed_percentage, direction))
+            self.subroutine_thread.start()
+    
         # SET THIS PART TO CHANGE MOTOR SPEED!!
         tail_speed_perc = 50   # between -100 to 100
 
