@@ -28,7 +28,7 @@ class ArmNode(Node):
         # set initial servo position: (number of servo, angle_desired, time span (ms))
         self.JSbutton = {}
         for i in range(len(self.buttonkeys)): 
-             self.JSbutton[self.buttonkeys[i]] =msg.buttons[i]
+            self.JSbutton[self.buttonkeys[i]] =msg.buttons[i]
         
         self.angleList_current = [self.angle1,self.angle2,self.angle3,self.angle4,self.angle5]
         if self.JSbutton['share'] == 1 and self.JSbutton['options'] == 0:
@@ -120,9 +120,9 @@ class ArmNode(Node):
         # calculate the angle change for all motors
         if -1 <= (self.l1**2+self.l2**2-y**2-z**2)/(2*self.l1*self.l2) <= 1:
             gamma = math.acos((self.l1**2+self.l2**2-y**2-z**2)/(2*self.l1*self.l2))
-            if -1 <= (l2*math.sin(gamma))/math.sqrt(y**2+z**2) <= 1:
+            if -1 <= (self.l2*math.sin(gamma))/math.sqrt(y**2+z**2) <= 1:
                 theta2 = math.pi-gamma
-                delta = math.asin((l2*math.sin(gamma))/math.sqrt(y**2+z**2))
+                delta = math.asin((self.l2*math.sin(gamma))/math.sqrt(y**2+z**2))
                 theta1 = math.pi/2-math.atan(z/y)-delta
                 theta1 = theta1*180.0/math.pi
                 theta2 = theta2*180.0/math.pi
@@ -144,12 +144,12 @@ class ArmNode(Node):
             angle = maxangle
         elif angle <= minangle:
             angle = minangle
-        arm.setPosition(numservo,round(float(angle),2),waitTime, wait=True)
+        self.arm.setPosition(numservo,round(float(angle),2),self.waitTime, wait=True)
         return round(float(angle),2) 	
     
     def intial_parameters(self):
         # order of keys in controller_node.py
-        self.buttonkeys = ['Dpad up','Dpad down','Dpad left','Dpad right','x','o','t','s','l1', 'r1','l2','r2','share','option']
+        self.buttonkeys = ['Dpad up','Dpad down','Dpad left','Dpad right','x','o','t','s','L1', 'R1','L2','R2','share','options']
         
         #set up button mappings for directional buttons, PS4 controller
         self.butYpos = 'Dpad up'
@@ -212,9 +212,9 @@ class ArmNode(Node):
         self.angle5 = -62.0
 	
         # set the initial arm position:
-        self.angleList_init = [angle1, angle2, angle3, angle4, angle5]
+        self.angleList_init = [self.angle1, self.angle2, self.angle3, self.angle4, self.angle5]
         for i in range(5):
-            arm.setPosition(5-i, self.angleList_init[5-i-1], 800, wait=True)
+            self.arm.setPosition(5-i, self.angleList_init[5-i-1], 800, wait=True)
         # set the climbing angles
         self.angleList_climing = [0.0,0.0,0.0,50.0,0.0]
 
