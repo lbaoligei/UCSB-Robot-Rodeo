@@ -39,14 +39,14 @@ class ArmNode(Node):
 
         ## set the gripper and waist motion through motors 1,2
         # Incremental step values for joystick and button presses
-        inc1 = 5.0
+        inc1 = 3.0
         inc2 = 3.0
         # 't' - gripper open, 'x' - gripper close, 'o' - waist turn clockwise, 
         # 's' - waist turn conter-clockwise
         if self.JSbutton['t'] == 1:  # triangular
-            self.angle1 = self.SetAngle(1,self.angle1,inc1,-125,125)
+            self.angle1 = self.SetAngle(1,self.angle1,inc1,0,60)
         if self.JSbutton['x'] == 1:  # 'x'
-            self.angle1 = self.SetAngle(1,self.angle1,-inc1,-125,125)
+            self.angle1 = self.SetAngle(1,self.angle1,-inc1,0,60)
         if self.JSbutton['o'] == 1:  # circle
             self.angle2 = self.SetAngle(2,self.angle2,inc2)
         if self.JSbutton['s'] == 1:  # square
@@ -128,10 +128,10 @@ class ArmNode(Node):
                 theta2 = theta2*180.0/math.pi
                 theta3 = theta1 + theta2 - 90.0 + 12 # 12 is offset for theta 3
             else:
-                theta1 = self.angle5; theta2 = self.angle4; theta3 = self.angle3;
+                theta1 = self.angle5; theta2 = self.angle4; theta3 = self.angle3
                 return
         else:
-            theta1 = self.angle5; theta2 = self.angle4; theta3 = self.angle3;
+            theta1 = self.angle5; theta2 = self.angle4; theta3 = self.angle3
             return
         return theta1, theta2, theta3, y, z
 
